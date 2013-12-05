@@ -33,8 +33,11 @@ object ImageUtils {
   def readImageFile(file: File): BufferedImage =
     ImageIO.read(file)
   
- def staticImage(file: File)(implicit ex: ExecutionContext): Enumerator[ScreenCapture] =
-    Enumerator.repeat(ScreenCapture(ImageIO.read(file)))
-}
+  def staticImageStream(file: File)(implicit ex: ExecutionContext): Enumerator[ScreenCapture] = {
+    val image = ImageIO.read(file)
+    
+    Enumerator.repeat(ScreenCapture(image))
+  }
+    
 
-case class LayoutItem(source: Enumerator[ScreenCapture], location: Rectangle)
+}
