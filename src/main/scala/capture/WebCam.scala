@@ -9,27 +9,23 @@ object WebCam {
   import play.api.libs.iteratee._
   import concurrent.{ExecutionContext,Future}
   
-  
   def cameras: Seq[WC] = {
     import collection.JavaConverters._
     WC.getWebcams.asScala
   }
   
-  def cameraStreams(implicit ex: ExecutionContext): Map[String, Enumerator[ScreenCapture]] =
-    (cameras map { cam =>
-      cam.getName -> stream(cam)
-    })(collection.breakOut)
-  
-  /**
-   * A "source" of the screen captures we can drive through a set of iteratee channels.
-   */
-  def stream(cam: WC = WC.getDefault)(implicit ex: ExecutionContext): Enumerator[ScreenCapture] = {
-    def retreive(f: Boolean): Future[Option[ScreenCapture]] = {
+  // -- RxJava STUFF --
+  import rx.lang.scala._
+  def rxStream(cam: WC = WC.getDefault, sync: Observable[_] = Sync.collectionSynch): Observable[ScreenCapture] = {
+    sync map { _ =>
       if(!cam.isOpen) cam.open()
-      Future.successful(Some(ScreenCapture(cam.getImage)))
-    }
-    Enumerator.fromCallback1(retreive, 
-        onComplete = () => cam.close(), 
-        onError = (_,_) => cam.close())
+      ScreenCapture(cam.getImage)
+    } finallyDo { () => cam.close() }
   }
+  def rxCameraStreams(sync: Observable[_] = Sync.collectionSynch): Map[String, Observable[ScreenCapture]] = {
+    (cameras.map { cam =>
+      cam.getName -> rxStream(cam, sync)
+    })(collection.breakOut)
+  }
+  
 }
