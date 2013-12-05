@@ -4,7 +4,9 @@ import java.awt.Graphics2D
 import java.awt.image.BufferedImageOp
 import java.awt.Rectangle
 
-object ScreenApp{
+object ScreenApp {
+  
+  val system = akka.actor.ActorSystem()
   
   def main(args: Array[String]): Unit = {
     val frame = new javax.swing.JFrame() {
@@ -28,14 +30,15 @@ object ScreenApp{
     val layout = video.Layout(
         size = new Rectangle(800,600),
         items = Seq(
+            video.LayoutItem(overlayImage, new Rectangle(0,0, 800,600)),
             video.LayoutItem(screen, new Rectangle(100,200, 200, 300)),
-            video.LayoutItem(overlayImage, new Rectangle(0,0, 800,600))
+            video.LayoutItem(webcam, new Rectangle(300,200, 100, 100))
         )
     )
-    
+    // We use actors in this stream...
+    implicit val actors = system
     val overlayStream = video.Overlays.makeOverlay(layout)
-    
-    val run = webcam &> video.ImageUtils.resize(400, 400) apply Iteratee.foreach { snap =>
+    val run = overlayStream &> video.ImageUtils.resize(400, 400) apply Iteratee.foreach { snap =>
       g.drawImage(snap.screen, null, 0, 0)
     }
   }
