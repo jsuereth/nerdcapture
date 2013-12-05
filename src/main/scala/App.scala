@@ -24,7 +24,7 @@ object ScreenApp {
     import concurrent.ExecutionContext.Implicits.global
     def newSyncContext: concurrent.ExecutionContext = new SyncExecutionContext(200)
     val screen = capture.Screen.stream()(newSyncContext)
-    val webcam = capture.WebCam.stream(newSyncContext)
+    val webcam = capture.WebCam.stream()(newSyncContext)
     val overlayImage = video.ImageUtils.staticImageStream(new java.io.File("overlay.png"))(newSyncContext)
     
     val layout = video.Layout(
