@@ -1,0 +1,25 @@
+
+
+
+# PLugins
+
+* cacasink -  ASCII art video.
+* ximagesrc - screenshot video stream
+  - display-name=":1"
+* v4l2src - Video for linux (webcam)
+  - /dev/video0 -  Default webcame
+
+* videobox 
+  - border-alpha=0 
+  - top=-20 left=-25  (Negative means add pixels i.e. move the video)
+  
+* multifilesrc 
+  - location="pluto.jpg" 
+  - caps="image/jpeg,framerate=1/1" 
+* jpegdec
+* pngdec
+
+# Also look for 
+* alsasrc - audio source
+* alsasink - audo dump
+
