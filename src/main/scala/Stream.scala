@@ -1,6 +1,6 @@
 import org.gstreamer._
 
-case class Stream(name: String) {
+case class GStream(name: String) {
   private val pipeline = new Pipeline(name)
   private var elements: Seq[Element] = Seq.empty
   
@@ -13,7 +13,7 @@ case class Stream(name: String) {
       elements +:= e 
     }
     
-  def link(link: (Element, Element)): Stream = {
+  def link(link: (Element, Element)): GStream = {
     val (source, sink) = link
     add(source)
     add(sink)
